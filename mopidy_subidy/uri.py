@@ -6,6 +6,7 @@ PLAYLIST = "playlist"
 ALBUM = "album"
 DIRECTORY = "directory"
 VDIR = "vdir"
+GENRE = "genre"
 PREFIX = "subidy"
 SEARCH = "search"
 RANDOM = "random"
@@ -70,6 +71,11 @@ def get_vdir_id(uri):
         return None
     return result.group(3)
 
+def get_genre_id(uri):
+    result = regex.match(uri)
+    if not is_id_result_valid(result, GENRE):
+        return None
+    return result.group(3)
 
 def get_type(uri):
     result = regex.match(uri)
@@ -97,6 +103,8 @@ def get_song_uri(id):
 def get_directory_uri(id):
     return get_type_uri(DIRECTORY, id)
 
+def get_genre_uri(id):
+    return get_type_uri(GENRE, id)
 
 def get_vdir_uri(id):
     return get_type_uri(VDIR, id)

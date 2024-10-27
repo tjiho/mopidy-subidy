@@ -450,6 +450,50 @@ class SubsonicApi:
             return albums
         return []
 
+    def get_raw_albums_by_genre(self, genre):
+        try:
+            response = self.connection.getAlbumList2(
+                ltype='byGenre', genre=genre
+            )
+        except Exception:
+            logger.warning(
+                "Connecting to subsonic failed when loading genre album list."
+            )
+            logging.exception('')
+            return []
+        if response.get("status") != RESPONSE_OK:
+            logger.warning(
+                "Got non-okay status code from subsonic: %s"
+                % response.get("status")
+            )
+            return []
+        albums = response.get("albumList2").get("album")
+        if albums is not None:
+            return albums
+        return []
+
+    def get_raw_genres(self):
+        try:
+            response = self.connection.getGenres()
+        except Exception:
+            logger.warning(
+                "Connecting to subsonic failed when loading genres."
+            )
+            return []
+
+        if response.get("status") != RESPONSE_OK:
+            logger.warning(
+                "Got non-okay status code from subsonic: %s"
+                % response.get("status")
+            )
+            return []
+
+        genres = response.get("genres").get("genre")
+
+        if genres is not None:
+            return genres
+        return []
+
     def get_more_albums(self, ltype, size=MAX_LIST_RESULTS, offset=0):
         try:
             response = self.connection.getAlbumList2(
@@ -597,6 +641,18 @@ class SubsonicApi:
             else:
                 yield self.raw_song_to_track(item)
 
+    def get_albums_by_genre_as_refs(self, genre): 
+        return [
+            self.raw_album_to_ref_with_artist(album) for album in self.get_raw_albums_by_genre(genre)
+        ]
+
+    def get_genres_as_refs(self):
+        genres = self.get_raw_genres()
+        return [Ref.directory(
+            name=genre['value'],
+            uri=uri.get_genre_uri(genre['value'])
+        ) for genre in genres]
+
     def raw_song_to_ref(self, song):
         if song is None:
             return None
@@ -644,10 +700,12 @@ class SubsonicApi:
     def raw_album_to_ref_with_artist(self, album):
         if album is None:
             return None
+
+        album_name = album.get("title") or album.get("name") or UNKNOWN_ALBUM
+        artist = album.get("artist") or UNKNOWN_ARTIST
+
         return Ref.album(
-            name=album.get("artist") + " - " + album.get("title")
-                or album.get("artist") + " - " + album.get("name")
-                or UNKNOWN_ALBUM,
+            name=artist + " · " + album_name,
             uri=uri.get_album_uri(album.get("id")),
         )
 
@@ -712,3 +770,4 @@ class SubsonicApi:
             uri=uri.get_playlist_uri(playlist.get("id")),
             name=playlist.get("name"),
         )
+
