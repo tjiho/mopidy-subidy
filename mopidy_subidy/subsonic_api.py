@@ -700,10 +700,12 @@ class SubsonicApi:
     def raw_album_to_ref_with_artist(self, album):
         if album is None:
             return None
+
+        album_name = album.get("title") or album.get("name") or UNKNOWN_ALBUM
+        artist = album.get("artist") or UNKNOWN_ARTIST
+
         return Ref.album(
-            name=album.get("artist") + " - " + album.get("title")
-            or album.get("artist") + " - " + album.get("name")
-            or UNKNOWN_ALBUM,
+            name=artist + " · " + album_name,
             uri=uri.get_album_uri(album.get("id")),
         )
 
