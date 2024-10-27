@@ -453,12 +453,13 @@ class SubsonicApi:
     def get_raw_albums_by_genre(self, genre):
         try:
             response = self.connection.getAlbumList2(
-                ltype='genre', size=size, offset=0, genre=genre
+                ltype='byGenre', genre=genre
             )
         except Exception:
             logger.warning(
                 "Connecting to subsonic failed when loading genre album list."
             )
+            logging.exception('')
             return []
         if response.get("status") != RESPONSE_OK:
             logger.warning(
