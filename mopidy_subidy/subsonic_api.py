@@ -450,6 +450,27 @@ class SubsonicApi:
             return albums
         return []
 
+    def get_raw_albums_by_genre(self, genre):
+        try:
+            response = self.connection.getAlbumList2(
+                ltype='genre', size=size, offset=0, genre=genre
+            )
+        except Exception:
+            logger.warning(
+                "Connecting to subsonic failed when loading genre album list."
+            )
+            return []
+        if response.get("status") != RESPONSE_OK:
+            logger.warning(
+                "Got non-okay status code from subsonic: %s"
+                % response.get("status")
+            )
+            return []
+        albums = response.get("albumList2").get("album")
+        if albums is not None:
+            return albums
+        return []
+
     def get_raw_genres(self):
         try:
             response = self.connection.getGenres()
@@ -620,7 +641,9 @@ class SubsonicApi:
                 yield self.raw_song_to_track(item)
 
     def get_albums_by_genre_as_refs(self, genre): 
-        return []
+        return [
+            self.raw_album_to_ref_with_artist(album) for album in self.get_raw_albums_by_genre(genre)
+        ]
 
     def get_genres_as_refs(self):
         genres = self.get_raw_genres()
