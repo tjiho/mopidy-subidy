@@ -625,8 +625,8 @@ class SubsonicApi:
     def get_genres_as_refs(self):
         genres = self.get_raw_genres()
         return [Ref.directory(
-            name=genre.value,
-            uri=uri.get_genre_uri(genre.value)
+            name=genre['value'],
+            uri=uri.get_genre_uri(genre['value'])
         ) for genre in genres]
 
     def raw_song_to_ref(self, song):

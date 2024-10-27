@@ -65,7 +65,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
         return self.subsonic_api.get_albums_by_genre_as_refs(genre)
 
     def browse_genre(self):
-        return self.subsonic_api.get_genres_as_refs(genre)
+        return self.subsonic_api.get_genres_as_refs()
 
     def browse_diritems(self, directory_id):
         return self.subsonic_api.get_diritems_as_refs(directory_id)
