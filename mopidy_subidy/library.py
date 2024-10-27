@@ -16,6 +16,7 @@ class SubidyLibraryProvider(backend.LibraryProvider):
             dict(id="rootdirs", name="Directories"),
             dict(id="random", name="Random"),
             dict(id="randomalbum", name="Random Albums"),
+            dict(id="genre", name="Genre"),
         ]
         # Create a dict with the keys being the `id`s in `vdir_templates`
         # and the values being objects containing the vdir `id`,
@@ -60,6 +61,12 @@ class SubidyLibraryProvider(backend.LibraryProvider):
     def browse_random_albums(self):
         return self.subsonic_api.get_random_albums_as_refs()
 
+    def browse_albums_by_genre(self, genre):
+        return self.subsonic_api.get_albums_by_genre_as_refs(genre)
+
+    def browse_genre(self):
+        return self.subsonic_api.get_genres_as_refs(genre)
+
     def browse_diritems(self, directory_id):
         return self.subsonic_api.get_diritems_as_refs(directory_id)
 
@@ -90,7 +97,8 @@ class SubidyLibraryProvider(backend.LibraryProvider):
 
     def browse(self, browse_uri):
         if browse_uri == uri.get_vdir_uri("root"):
-            root_vdir_names = ["rootdirs", "artists", "albums", "random", "randomalbum"]
+            root_vdir_names = ["rootdirs", "artists",
+                               "albums", "random", "randomalbum", "genre"]
             root_vdirs = [
                 self._vdirs[vdir_name] for vdir_name in root_vdir_names
             ]
@@ -108,11 +116,15 @@ class SubidyLibraryProvider(backend.LibraryProvider):
             return self.browse_random_songs()
         elif browse_uri == uri.get_vdir_uri("randomalbum"):
             return self.browse_random_albums()
+        elif browse_uri == uri.get_vdir_uri("genre"):
+            return self.browse_genre()
 
         else:
             uri_type = uri.get_type(browse_uri)
             if uri_type == uri.DIRECTORY:
                 return self.browse_diritems(uri.get_directory_id(browse_uri))
+            elif uri_type == uri.GENRE:
+                return self.browse_albums_by_genre(uri.get_genre_id(browse_uri))
             elif uri_type == uri.ARTIST:
                 return self.browse_albums(uri.get_artist_id(browse_uri))
             elif uri_type == uri.ALBUM:
