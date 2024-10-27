@@ -453,7 +453,7 @@ class SubsonicApi:
     def get_raw_albums_by_genre(self, genre):
         try:
             response = self.connection.getAlbumList2(
-                ltype='byGenre', genre=genre
+                ltype='byGenre', size=MAX_LIST_RESULTS, genre=genre, 
             )
         except Exception:
             logger.warning(
